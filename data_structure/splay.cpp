@@ -13,13 +13,29 @@ void init_pool(){
     nil->size = 0;
 }
 
-struct Splay{
-    Node *root;
-    vector<int> ret;
+template<typename T>
+class Splay{
+public:
     
+    struct Node {
+        T val;
+        int size;
+        Node *fa, *s[2];
+    };
+    
+    Node buf[N];
+
+    Node *root, *nil, *pool;
+    
+    Splay() {
+        nil = pool = buf;
+        nil->s[0] = nil->s[1] = nil->fa = nil;
+        nil->size = 0;
+
+    }
     void push_up(Node* x){
         x->size = x->s[0]->size + x->s[1]->size + 1;
-        x->sum = x->val + x->s[0]->sum + x->s[1]->sum;
+        //x->sum = x->val + x->s[0]->sum + x->s[1]->sum;
     }
     void init(int a[], int na){
         root = new_node(-inf, nil);
@@ -40,7 +56,7 @@ struct Splay{
         push_up(cur);
         return cur;
     }
-    Node* new_node(int val, Node* f){
+    Node* new_node(T val, Node* f){
         Node* x = ++pool; 
         x->fa = f;
         x->val = val;
@@ -76,6 +92,8 @@ struct Splay{
         push_up(x) ;
         if(x->fa == nil) root = x ;
     }
+
+    // 找到第k个元素，并splay到f之下
     void select(int k, Node* f){
         Node* x = root;
         while(x != nil){
@@ -86,19 +104,12 @@ struct Splay{
         }
         splay(x, f);
     }
+
+    // get完后，结果区间就在root->s[1]->s[0]所在子树
     void get(int left, int right){
         left++, right++;
         select(left - 1, nil);
         select(right + 1, root);
-    }
-    ll query(int left, int right){
-        get(left, right);
-        Node* x = root->s[1]->s[0];
-        return x->sum;
-    }
-    void update_root(){
-        push_up(root->s[1]);
-        push_up(root);
     }
     void dfs(Node* x){
         if(x == nil) return;
@@ -106,4 +117,4 @@ struct Splay{
         cout << x->val << ' ';
         dfs(x->s[1]);
     }
-}tree[2];
+};
